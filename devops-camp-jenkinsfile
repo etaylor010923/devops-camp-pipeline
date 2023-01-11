@@ -9,6 +9,7 @@ pipeline {
         HARBOR_PROJECT = 'etaylor-harbor-project'
         APP_IMAGE_NAME = 'app'
         DB_IMAGE_NAME = 'db'
+    }
     stages {
         stage('Application repository') {
             steps {
@@ -16,7 +17,7 @@ pipeline {
                 //TODO("Lab 3 - Introduction to Automated Builds"): add github url
                 sh 'git clone https://github.com/etaylor010923/afs-labs-student.git'
                 //TODO("Lab 4 - Artifact Management"): add COMMIT_HASH variable
-                dir('afs-labs-student') {
+				dir('afs-labs-student') {
                     script {
                         env.COMMIT_HASH = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     }
@@ -27,7 +28,7 @@ pipeline {
             steps {
                 echo "Building application image"
                 //TODO("Lab 4 - Artifact Management"): build the docker app image
-                withCredentials([usernameColonPassword(credentialsId: 'etaylor-harbor-auth', variable: 'HARBOR-AUTH')]) {
+				withCredentials([usernameColonPassword(credentialsId: 'etaylor-harbor-auth', variable: 'HARBOR-AUTH')]) {
                     script {
                         sh 'docker build -t $APP_IMAGE_NAME-$COMMIT_HASH -f ./app/Dockerfile ./afs-labs-student'
                         docker.withRegistry('https://$HARBOR_REGISTRY', 'etaylor-harbor-auth') {
@@ -36,9 +37,7 @@ pipeline {
                         }
                     }
                 }
-            }
-            //TODO("Lab 4 - Artifact Management"): clean local docker app image
-            post {
+                post {
                 always {
                     echo "Clean local $APP_IMAGE_NAME image"
                     script {
@@ -51,10 +50,12 @@ pipeline {
                     }
                 }
             }
-            
+            }
+            //TODO("Lab 4 - Artifact Management"): clean local docker app image
         }
         stage('Database docker build') {
             steps {
+                
                 echo "Building database image"
                 //TODO("Lab 4 - Artifact Management"): build the docker db image
                 withCredentials([usernameColonPassword(credentialsId: 'etaylor-harbor-auth', variable: 'HARBOR-AUTH')]) {
