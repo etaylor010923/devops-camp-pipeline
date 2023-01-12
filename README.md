@@ -1,1 +1,1 @@
-# devops-camp-pipeline
+# devops-camp-pipeline-bootcamp
